@@ -2,6 +2,7 @@ package com.boot.board_240718.controller;
 
 import com.boot.board_240718.model.Board;
 import com.boot.board_240718.repository.BoardRepository;
+import com.boot.board_240718.service.BoardService;
 import com.boot.board_240718.validator.BoardValidator;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +11,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -27,6 +30,8 @@ public class BoardController {
 
     @Autowired
     private BoardValidator boardValidator;
+
+
 
     @GetMapping("/list")
 //    public String list(Model model) {
@@ -74,6 +79,9 @@ public class BoardController {
         return "board/form";
     }
 
+    @Autowired
+    private BoardService boardService;
+
     @PostMapping("/form")
 //    public String form(@ModelAttribute Board board, Model model) {
     public String form(@Valid Board board, BindingResult bindingResult) {
@@ -82,8 +90,11 @@ public class BoardController {
         if (bindingResult.hasErrors()) {//유효성 검사 : 게시글제목에 notnull을 걸어놨는데 값이 없이 넘어오면
             return "board/form"; //다시 글쓰기로 보냄
         }
-        boardRepository.save(board);//레파지토리 이용해서 바로 저장
-
+//        boardRepository.save(board);//레파지토리 이용해서 바로 저장, 글쓴이 저장하기 전
+        //Spring security 인증정보 가져오기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();//인증정보에서 username 가져옴
+        boardService.save(username,board);
         return "redirect:/board/list";
     }
 }

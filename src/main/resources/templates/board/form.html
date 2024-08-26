@@ -42,12 +42,28 @@
             </div>
             <p class="text-end">
               <button type="submit" class="btn btn-primary">확인</button>
+              <button type="button" class="btn btn-primary" sec:authorize="hasRole('ROLE_ADMIN')" 
+                                                              th:onclick="|deleteBoard(*{id})|">삭제</button>
               <!-- <button type="reset" class="btn btn-pri/mary">취소</button> -->
               <a type="reset" class="btn btn-primary" th:href="@{/board/list}">취소</a>
             </p>
          </div>
       </form>
     </main>
+    <script src="https://code.jquery.com/jquery-latest.min.js"></script>
+    <script>
+      function deleteBoard(id){
+        // alert("id");
+        $.ajax({
+          url: '/api/boards/'+id,
+          type: 'DELETE', //컨트롤러에서 rest방식으로 deletemapping으로 받으면 됨
+          success: function(result) {
+            alert("삭제되었습니다.");
+            location.href="/board/list";
+          }
+        });
+      }
+    </script>
 </body>
 
 </html>
